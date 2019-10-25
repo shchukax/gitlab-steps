@@ -1,0 +1,27 @@
+Token: 2acGynxmrtJHeftuzgMh
+
+CreateBranch:
+POST https://gitlab.bunzl.co.uk/api/v4/projects/util%2Fwebredir/repository/branches
+{"branch":"test2","ref":"development"}
+
+CreatePullRequest
+POST https://gitlab.bunzl.co.uk/api/v4/projects/util%2Fwebredir/merge_requests
+{"title":"Test Merge Request","description":"Test merge request description","source_branch":"test1","target_branch":"development"}
+
+CreateTag:
+POST https://gitlab.bunzl.co.uk/api/v4/projects/util%2Fwebredir/repository/tags
+{"tag_name":"test2_tag","ref":"test2"}
+
+GetTags:
+GET https://gitlab.bunzl.co.uk/api/v4/projects/util%2Fwebredir/repository/tags
+
+MergePullRequest:
+PUT https://gitlab.bunzl.co.uk/api/v4/projects/util%2Fwebredir/merge_requests/26/merge
+
+UpdateFile:
+create new:
+POST https://gitlab.bunzl.co.uk/api/v4/projects/util%2Fwebredir/repository/files/path%2Fto%2Ffile
+{"branch": "test2", "content": "File content", "commit_message": "Updating build number"}
+update existing:
+PUT https://gitlab.bunzl.co.uk/api/v4/projects/util%2Fwebredir/repository/files/path%2Fto%2Ffile
+{"branch": "test2", "content": "File content", "commit_message": "Updating build number"}
