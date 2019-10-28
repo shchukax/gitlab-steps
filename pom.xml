@@ -11,9 +11,9 @@
 
     <groupId>com.aagproservices.jenkins.plugins</groupId>
     <artifactId>gitlab-steps</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
     <packaging>hpi</packaging>
-    <name>Bitbucket Steps Plugin</name>
+    <name>Gitlab Steps Plugin</name>
     <inceptionYear>2018</inceptionYear>
 
     <licenses>
