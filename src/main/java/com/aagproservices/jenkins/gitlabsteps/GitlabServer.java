@@ -31,6 +31,7 @@ public class GitlabServer extends AbstractDescribableImpl<GitlabServer> implemen
     private String accessToken;
     private Integer timeout;
     private Integer poolSize;
+    private boolean debugMode;
 
     //Will be implemented soon.....
     private boolean trustAllCertificates = false;
@@ -48,14 +49,18 @@ public class GitlabServer extends AbstractDescribableImpl<GitlabServer> implemen
      *        The desired timeout for the connection.
      * @param poolSize
      *        The max connection pool size.
+     * @param debugMode
+     *        The debug mode indicator.
      */
     @DataBoundConstructor
     public GitlabServer(final URL url, final String accessToken,
-                        final Integer timeout, final Integer poolSize) {
+                        final Integer timeout, final Integer poolSize,
+                        final boolean debugMode) {
         this.url = url;
         this.accessToken = accessToken;
         this.timeout = timeout;
         this.poolSize = poolSize;
+        this.debugMode = debugMode;
     }
 
     @Override
@@ -143,6 +148,26 @@ public class GitlabServer extends AbstractDescribableImpl<GitlabServer> implemen
         this.poolSize = poolSize;
     }
 
+    /**
+     * Returns the debug mode status.
+     *
+     * @return The debug mode status.
+     */
+    public boolean isDebugMode() {
+        return debugMode;
+    }
+
+    /**
+     * Sets the debug mode status.
+     *
+     * @param debugMode
+     *        The debug mode status
+     */
+    @DataBoundSetter
+    public void setDebugMode(final boolean debugMode) {
+        this.debugMode = debugMode;
+    }
+
     public boolean getTrustAllCertificates() {
         return trustAllCertificates;
     }
@@ -164,6 +189,7 @@ public class GitlabServer extends AbstractDescribableImpl<GitlabServer> implemen
         private String url;
         private Integer timeout;
         private Integer poolSize;
+        private boolean debugMode;
         private boolean trustAllCertificates;
 
         /**
@@ -186,7 +212,8 @@ public class GitlabServer extends AbstractDescribableImpl<GitlabServer> implemen
             url = json.getString("url");
             timeout = json.getInt("timeout");
             poolSize = json.getInt("poolSize");
-//            trustAllCertificates = json.getBoolean("trustAllCertificates");
+            debugMode = json.getBoolean("debugMode");
+//            trustAllCertificates = json.getboolean("trustAllCertificates");
             validate(url, accessToken, timeout);
             save();
             return super.configure(req, json);
@@ -243,6 +270,13 @@ public class GitlabServer extends AbstractDescribableImpl<GitlabServer> implemen
         public String getAccessToken() {
             return accessToken;
         }
+
+        /**
+         * Returns debug mode status
+         *
+         * @return debug mode status
+         */
+        public boolean isDebugMode() { return debugMode; }
 
         public boolean getTrustAllCertificates() {
             return trustAllCertificates;

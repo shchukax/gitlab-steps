@@ -19,6 +19,7 @@ public class GetTagsStep extends AbstractStep {
 
     private static final long serialVersionUID = -7249517566925473127L;
 
+    private String filter;
     /**
      * Constructor which takes the necessary information to create a page.
      *
@@ -26,15 +27,22 @@ public class GetTagsStep extends AbstractStep {
      *        Project or username where the repo is located
      * @param repoSlug
      *        Repository slug
+     * @param filter
+     *        Substring to match tags to
      */
     @DataBoundConstructor
-    public GetTagsStep(final String project, final String repoSlug) {
+    public GetTagsStep(final String project, final String repoSlug, String filter) {
         super(project, repoSlug);
+        this.filter = filter;
     }
 
     @Override
     public StepExecution start(final StepContext context) throws Exception {
         return new GetTagsExecution(this, context, getSite());
+    }
+
+    public String getFilter() {
+        return filter;
     }
 
     @Extension

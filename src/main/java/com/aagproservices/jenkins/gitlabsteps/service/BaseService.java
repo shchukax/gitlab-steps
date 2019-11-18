@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class BaseService {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseService.class);
+    private static final String TAG = "[GITLAB_STEPS] ";
 
     private static final String SSL_INSTANCE_TYPE = "SSL";
     private static final String AUTHORIZATION_HEADER = "Authorization";
@@ -69,7 +70,8 @@ public abstract class BaseService {
         requestBuilder.url(buildUrl(
                 gitlabSite.getUrl()
                         + BASE_RESOURCE
-                        + "/projects/" + project
+                        + "/projects/"
+                        + project
                         + "%2F" + repoSlug
                         + "/" + requestResource,
                 queryParams));
@@ -111,12 +113,24 @@ public abstract class BaseService {
         }
     }
 
-    protected Object executeRequest(final Request request) throws JSONException, BadRequestException {
+    protected Object executeRequest(final Request request) throws BadRequestException {
         try {
+            if (gitlabSite.isDebugMode()) {
+                LOGGER.info(TAG + "Request: " + request.method() + " " + request.url().toString());
+                if (request.body() != null && request.body().contentLength() > 0) {
+                    LOGGER.info(TAG + request.body().toString());
+                }
+            }
+
             OkHttpClient client = getClient();
             Response response = client.newCall(request).execute();
             ResponseBody respBody = response.body();
             String respString = respBody == null ? "" : respBody.string();
+
+            if (gitlabSite.isDebugMode()) {
+                LOGGER.info(TAG + "Response: " + response.code() + " " + response.message());
+                LOGGER.info(TAG + respString);
+            }
 
             JSONObject object;
             JSONArray array;

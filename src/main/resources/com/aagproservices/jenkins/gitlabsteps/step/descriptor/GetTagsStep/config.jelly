@@ -10,11 +10,17 @@
         xmlns:i="jelly:fmt">
 
     <f:section title="Repository">
-        <f:entry title="Bitbucket Project" field="project">
+        <f:entry title="Gitlab Group" field="project">
             <f:textbox/>
         </f:entry>
 
-        <f:entry title="Repo Slug" field="repoSlug">
+        <f:entry title="Gitlab Project" field="repoSlug">
+            <f:textbox/>
+        </f:entry>
+    </f:section>
+
+    <f:section title="Repository">
+        <f:entry title="Filter text" field="filter">
             <f:textbox/>
         </f:entry>
     </f:section>

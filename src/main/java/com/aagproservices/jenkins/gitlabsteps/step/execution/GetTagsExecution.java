@@ -6,7 +6,6 @@ import com.aagproservices.jenkins.gitlabsteps.step.AbstractStepExecution;
 import com.aagproservices.jenkins.gitlabsteps.step.descriptor.GetTagsStep;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 /**
  * @author Aleks Gekht
@@ -36,7 +35,7 @@ public class GetTagsExecution extends AbstractStepExecution<JSONArray, GetTagsSt
     @Override
     protected JSONArray run() throws Exception {
         try {
-            return getService(ContentService.class).getTags(getStep().getProject(), getStep().getRepoSlug());
+            return getService(ContentService.class).getTags(getStep().getProject(), getStep().getRepoSlug(), getStep().getFilter());
         } catch (Exception e) {
             e.printStackTrace();
             throw e;

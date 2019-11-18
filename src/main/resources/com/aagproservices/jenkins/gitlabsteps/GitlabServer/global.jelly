@@ -27,5 +27,8 @@
             <f:textbox default="10"/>
         </f:entry>
 
+        <f:entry title="Debug mode" field="debugMode" description="Print debugging info to console" inline="true" name="debugMode">
+            <f:checkbox/>
+        </f:entry>
     </f:section>
 </j:jelly>

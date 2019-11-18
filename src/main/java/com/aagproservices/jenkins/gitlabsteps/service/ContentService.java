@@ -16,8 +16,11 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class ContentService extends BaseService {
 
@@ -40,12 +43,15 @@ public final class ContentService extends BaseService {
         }
     }
 
-    public JSONArray getTags(final String project, final String repoSlug) throws BadRequestException {
+    public JSONArray getTags(final String project, final String repoSlug, String filter) throws BadRequestException {
         try {
-            Request request = buildRequest (project, repoSlug,"repository/tags", HttpMethod.GET, null, null);
+            Map<String, String> queryParams = new HashMap<>();
+            queryParams.put("search", filter == null ? "" : filter);
+
+            Request request = buildRequest (project, repoSlug,"repository/tags", HttpMethod.GET, null, queryParams);
             return (JSONArray)executeRequest(request);
-        } catch (JSONException ex) {
-            throw new RuntimeException("Error creating tag", ex);
+        } catch (ClassCastException ex) {
+            throw new RuntimeException("Error retrieving tags", ex);
         }
     }
 
@@ -104,7 +110,7 @@ public final class ContentService extends BaseService {
             JSONObject json = new JSONObject()
                     .put("branch", fileUpdate.getBranch())
                     .put("commit_message", fileUpdate.getMessage())
-                    .put("content", new String(Files.readAllBytes(Paths.get(workspace, fileUpdate.getFile())), "UTF-8"));
+                    .put("content", new String(Files.readAllBytes(Paths.get(workspace, fileUpdate.getFile())), StandardCharsets.UTF_8));
 
             RequestBody body = RequestBody.create(okhttp3.MediaType.parse(MediaType.APPLICATION_JSON), json.toString());
             Request request = buildRequest(
