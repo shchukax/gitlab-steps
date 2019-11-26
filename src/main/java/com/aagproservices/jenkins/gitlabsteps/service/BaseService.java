@@ -136,9 +136,16 @@ public abstract class BaseService {
             JSONArray array;
 
             if ((object = getJSONObject(respString)) != null) {
+                if(response.code() >= 400) {
+                    throw new BadRequestException("Error response from server (" + response.code() + "): " + object.toString());
+                }
+
                 checkForError(object, "Error response from server");
                 return object;
             } else if((array = getJSONOArray(respString)) != null) {
+                if(response.code() >= 400) {
+                    throw new BadRequestException("Error response from server (" + response.code() + "): " + array.toString());
+                }
                 return array;
             } else {
                 throw new BadRequestException("Unable to parse response from server: '" + respString + "'");
