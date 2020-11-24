@@ -1,6 +1,5 @@
 package com.aagproservices.jenkins.gitlabsteps.step.execution;
 
-import com.aagproservices.jenkins.gitlabsteps.GitlabServer;
 import com.aagproservices.jenkins.gitlabsteps.service.ContentService;
 import com.aagproservices.jenkins.gitlabsteps.step.AbstractStepExecution;
 import com.aagproservices.jenkins.gitlabsteps.step.descriptor.UpdateFileStep;
@@ -22,10 +21,9 @@ public class UpdateFileExecution extends AbstractStepExecution<JSONObject, Updat
      *
      * @param updateFileStep The step that is going to be executed.
      * @param context        The step context.
-     * @param gitlabSite The configured site of gitlab.
      */
-    public UpdateFileExecution(final UpdateFileStep updateFileStep, final StepContext context, final GitlabServer gitlabSite) {
-        super(updateFileStep, context, gitlabSite);
+    public UpdateFileExecution(final UpdateFileStep updateFileStep, final StepContext context) {
+        super(updateFileStep, context);
     }
 
     @Override
@@ -50,10 +48,9 @@ public class UpdateFileExecution extends AbstractStepExecution<JSONObject, Updat
         try {
             FilePath path = getContext().get(FilePath.class);
             return getService(ContentService.class).updateFile(
-                    getStep().getProject(),
-                    getStep().getRepoSlug(),
-                    getStep().getFileUpdate(),
-                    path.getRemote()
+                    getStep().getGitlabUrl(), retrieveAuthToken(getStep().getAuthToken()),
+                    getStep().getProject(), getStep().getRepoSlug(), getStep().getFileUpdate(), path.getRemote(),
+                    getStep().getTimeout(), getStep().isDebugMode(), getStep().isTrustAllCertificates()
             );
         } catch (Exception e) {
             e.printStackTrace();

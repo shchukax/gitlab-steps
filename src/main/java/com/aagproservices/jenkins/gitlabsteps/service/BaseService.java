@@ -1,8 +1,14 @@
 package com.aagproservices.jenkins.gitlabsteps.service;
 
-import com.aagproservices.jenkins.gitlabsteps.GitlabServer;
 import com.aagproservices.jenkins.gitlabsteps.util.HttpUtil;
+import com.cloudbees.plugins.credentials.CredentialsMatchers;
+import com.cloudbees.plugins.credentials.CredentialsProvider;
+import com.cloudbees.plugins.credentials.common.StandardCredentials;
+import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
+import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
+import hudson.security.ACL;
 import okhttp3.*;
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,16 +38,7 @@ public abstract class BaseService {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     protected static final String BASE_RESOURCE = "/api/v4";
 
-    protected GitlabServer gitlabSite;
-    private OkHttpClient client;
-    private Map<String, String> defaultRequestHeaders;
-    private Map<String, String> customRequestHeaders;
-
-    BaseService(final GitlabServer gitlabSite) {
-        this.gitlabSite = gitlabSite;
-        this.customRequestHeaders = new HashMap<>();
-        initClient();
-        initHeaders();
+    BaseService() {
     }
 
     protected String guessMediaType(final File file) {
@@ -60,15 +57,14 @@ public abstract class BaseService {
         }
     }
 
-    protected Request buildRequest(final String project, final String repoSlug,
+    protected Request buildRequest(final String gitlabUrl, final String token,
+                                   final String project, final String repoSlug,
                                    final String requestResource, final String httpMethod,
                                    final RequestBody requestBody, final Map<String, String> queryParams) {
         Request.Builder requestBuilder = new Request.Builder();
-        registerAllHeaders(requestBuilder);
-        //clear the custom headers for the next upcoming request
-        this.customRequestHeaders.clear();
+        requestBuilder.addHeader(AUTHORIZATION_HEADER, "Bearer " + token);
         requestBuilder.url(buildUrl(
-                gitlabSite.getUrl()
+                        gitlabUrl
                         + BASE_RESOURCE
                         + "/projects/"
                         + project
@@ -113,21 +109,21 @@ public abstract class BaseService {
         }
     }
 
-    protected Object executeRequest(final Request request) throws BadRequestException {
+    protected Object executeRequest(final Request request, int timeout, boolean debugMode, boolean trustAllCertificates) throws BadRequestException {
         try {
-            if (gitlabSite.isDebugMode()) {
+            if (debugMode) {
                 LOGGER.info(TAG + "Request: " + request.method() + " " + request.url().toString());
                 if (request.body() != null && request.body().contentLength() > 0) {
                     LOGGER.info(TAG + request.body().toString());
                 }
             }
 
-            OkHttpClient client = getClient();
+            OkHttpClient client = initClient(timeout, trustAllCertificates);
             Response response = client.newCall(request).execute();
             ResponseBody respBody = response.body();
             String respString = respBody == null ? "" : respBody.string();
 
-            if (gitlabSite.isDebugMode()) {
+            if (debugMode) {
                 LOGGER.info(TAG + "Response: " + response.code() + " " + response.message());
                 LOGGER.info(TAG + respString);
             }
@@ -156,19 +152,18 @@ public abstract class BaseService {
         }
     }
 
-    private void initClient() {
+    private OkHttpClient initClient(int timeout, boolean trustAllCertificates) {
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                .connectTimeout(this.gitlabSite.getTimeout(), TimeUnit.SECONDS)
-                .readTimeout(this.gitlabSite.getTimeout(), TimeUnit.SECONDS)
-                .writeTimeout(this.gitlabSite.getTimeout(), TimeUnit.SECONDS)
-                .connectionPool(new ConnectionPool(gitlabSite.getPoolSize(), 15, TimeUnit.SECONDS));
+                .connectTimeout(timeout, TimeUnit.SECONDS)
+                .readTimeout(timeout, TimeUnit.SECONDS)
+                .writeTimeout(timeout, TimeUnit.SECONDS);
 
-        if (gitlabSite.getTrustAllCertificates()) {
+        if (trustAllCertificates) {
             builder = installTrustManager(builder, HttpUtil.buildAllTrustingManager())
                     .hostnameVerifier((s, sslSession) -> true);
         }
 
-        this.client = builder.build();
+        return builder.build();
     }
 
     private OkHttpClient.Builder installTrustManager(OkHttpClient.Builder builder, final TrustManager[] allTrustingManager) {
@@ -186,16 +181,6 @@ public abstract class BaseService {
         }
     }
 
-    private void initHeaders() {
-        this.defaultRequestHeaders = new HashMap<>();
-        this.defaultRequestHeaders.put(AUTHORIZATION_HEADER, "Bearer " + gitlabSite.getAccessToken());
-    }
-
-    private void registerAllHeaders(final Request.Builder builder) {
-        defaultRequestHeaders.forEach(builder::addHeader);
-        customRequestHeaders.forEach(builder::addHeader);
-    }
-
     private void addQueryParams(final HttpUrl.Builder urlBuilder, final Map<String, String> queryParams) {
         if (queryParams != null && !queryParams.isEmpty()) {
             queryParams.forEach(urlBuilder::addQueryParameter);
@@ -207,13 +192,5 @@ public abstract class BaseService {
         HttpUrl.Builder urlBuilder = urlObject.newBuilder();
         addQueryParams(urlBuilder, queryParams);
         return urlBuilder.build();
-    }
-
-    private void registerRequestHeader(final String name, final String value) {
-        this.customRequestHeaders.put(name, value);
-    }
-
-    public OkHttpClient getClient() {
-        return client;
     }
 }

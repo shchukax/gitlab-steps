@@ -1,6 +1,5 @@
 package com.aagproservices.jenkins.gitlabsteps.step.execution;
 
-import com.aagproservices.jenkins.gitlabsteps.GitlabServer;
 import com.aagproservices.jenkins.gitlabsteps.service.ContentService;
 import com.aagproservices.jenkins.gitlabsteps.step.AbstractStepExecution;
 import com.aagproservices.jenkins.gitlabsteps.step.descriptor.MergePullRequestStep;
@@ -21,10 +20,9 @@ public class MergePullRequestExecution extends AbstractStepExecution<JSONObject,
      *
      * @param mergePullRequestStep The step that is going to be executed.
      * @param context        The step context.
-     * @param gitlabSite The configured site of gitlab.
      */
-    public MergePullRequestExecution(final MergePullRequestStep mergePullRequestStep, final StepContext context, final GitlabServer gitlabSite) {
-        super(mergePullRequestStep, context, gitlabSite);
+    public MergePullRequestExecution(final MergePullRequestStep mergePullRequestStep, final StepContext context) {
+        super(mergePullRequestStep, context);
     }
 
     @Override
@@ -39,7 +37,11 @@ public class MergePullRequestExecution extends AbstractStepExecution<JSONObject,
     @Override
     protected JSONObject run() throws Exception {
         try {
-            return getService(ContentService.class).mergePullRequest(getStep().getProject(), getStep().getRepoSlug(), getStep().getId());
+            return getService(ContentService.class).mergePullRequest(
+                    getStep().getGitlabUrl(), retrieveAuthToken(getStep().getAuthToken()),
+                    getStep().getProject(), getStep().getRepoSlug(), getStep().getId(),
+                    getStep().getTimeout(), getStep().isDebugMode(), getStep().isTrustAllCertificates()
+            );
         } catch (Exception e) {
             e.printStackTrace();
             throw e;

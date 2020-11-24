@@ -39,8 +39,10 @@ public class CreateTagStep extends AbstractStep {
      *        Branch/commit/etc. to create tag on
      */
     @DataBoundConstructor
-    public CreateTagStep(final String project, final String repoSlug, final String name, final String message, final String startPoint) {
-        super(project, repoSlug);
+    public CreateTagStep(final String gitlabUrl, final String authToken, final String project, final String repoSlug,
+                         final String name, final String message, final String startPoint,
+                         final int timeout, final boolean debugMode, final boolean trustAllCertificates) {
+        super(gitlabUrl, authToken, project, repoSlug, timeout, debugMode, trustAllCertificates);
         this.name = name;
         this.message = message;
         this.startPoint = startPoint;
@@ -48,7 +50,7 @@ public class CreateTagStep extends AbstractStep {
 
     @Override
     public StepExecution start(final StepContext context) throws Exception {
-        return new CreateTagExecution(this, context, getSite());
+        return new CreateTagExecution(this, context);
     }
 
     /**

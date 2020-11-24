@@ -39,9 +39,10 @@ public class UpdateFileStep extends AbstractStep {
      *        Source branch of pull request
      */
     @DataBoundConstructor
-    public UpdateFileStep(final String project, final String repoSlug,
-                          final String file, final String message, final String branch) {
-        super(project, repoSlug);
+    public UpdateFileStep(final String gitlabUrl, final String authToken, final String project, final String repoSlug,
+                          final String file, final String message, final String branch,
+                          final int timeout, final boolean debugMode, final boolean trustAllCertificates) {
+        super(gitlabUrl, authToken, project, repoSlug, timeout, debugMode, trustAllCertificates);
         this.file = file;
         this.message = message;
         this.branch = branch;
@@ -49,7 +50,7 @@ public class UpdateFileStep extends AbstractStep {
 
     @Override
     public StepExecution start(final StepContext context) throws Exception {
-        return new UpdateFileExecution(this, context, getSite());
+        return new UpdateFileExecution(this, context);
     }
 
     /**

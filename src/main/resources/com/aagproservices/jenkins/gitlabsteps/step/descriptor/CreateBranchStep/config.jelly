@@ -10,6 +10,14 @@
         xmlns:i="jelly:fmt">
 
     <f:section title="Repository">
+        <f:entry title="Gitlab Base URL" field="gitlabUrl">
+            <f:textbox/>
+        </f:entry>
+
+        <f:entry field="authToken" title="Authentication Token">
+            <f:select />
+        </f:entry>
+
         <f:entry title="Gitlab Group" field="project">
             <f:textbox/>
         </f:entry>
@@ -31,5 +39,21 @@
         <f:entry field="startPoint" title="Start point" message="Branch, tag or commit hash to branch off">
             <f:textbox/>
         </f:entry>
+    </f:section>
+
+    <f:section title="Advanced Project Options">
+        <f:advanced>
+            <f:entry title="Timeout in seconds" field="timeout">
+                <f:textbox default="10"/>
+            </f:entry>
+
+            <f:entry title="Debug mode" field="debugMode" description="Print debugging info to console" inline="true" name="debugMode">
+                <f:checkbox/>
+            </f:entry>
+
+            <f:entry title="Trust All Certificates" field="trustAllCertificates" description="Ignore SSL certificate validation errors" inline="true" name="trustAllCertificates">
+                <f:checkbox/>
+            </f:entry>
+      </f:advanced>
     </f:section>
 </j:jelly>

@@ -42,9 +42,10 @@ public class CreatePullRequestStep extends AbstractStep {
      *        Destination branch of pull request
      */
     @DataBoundConstructor
-    public CreatePullRequestStep(final String project, final String repoSlug,
-                                 final String title, final String description, final String fromRef, final String toRef) {
-        super(project, repoSlug);
+    public CreatePullRequestStep(final String gitlabUrl, final String authToken, final String project, final String repoSlug,
+                                 final String title, final String description, final String fromRef, final String toRef,
+                                 final int timeout, final boolean debugMode, final boolean trustAllCertificates) {
+        super(gitlabUrl, authToken, project, repoSlug, timeout, debugMode, trustAllCertificates);
         this.title = title;
         this.description = description;
         this.fromRef = fromRef;
@@ -53,7 +54,7 @@ public class CreatePullRequestStep extends AbstractStep {
 
     @Override
     public StepExecution start(final StepContext context) throws Exception {
-        return new CreatePullRequestExecution(this, context, getSite());
+        return new CreatePullRequestExecution(this, context);
     }
 
     /**

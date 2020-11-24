@@ -1,6 +1,5 @@
 package com.aagproservices.jenkins.gitlabsteps.step.execution;
 
-import com.aagproservices.jenkins.gitlabsteps.GitlabServer;
 import com.aagproservices.jenkins.gitlabsteps.service.ContentService;
 import com.aagproservices.jenkins.gitlabsteps.step.AbstractStepExecution;
 import com.aagproservices.jenkins.gitlabsteps.step.descriptor.CreatePullRequestStep;
@@ -21,10 +20,9 @@ public class CreatePullRequestExecution extends AbstractStepExecution<Integer, C
      *
      * @param createPullRequestStep The step that is going to be executed.
      * @param context        The step context.
-     * @param gitlabSite The configured site of gitlab.
      */
-    public CreatePullRequestExecution(final CreatePullRequestStep createPullRequestStep, final StepContext context, final GitlabServer gitlabSite) {
-        super(createPullRequestStep, context, gitlabSite);
+    public CreatePullRequestExecution(final CreatePullRequestStep createPullRequestStep, final StepContext context) {
+        super(createPullRequestStep, context);
     }
 
     @Override
@@ -47,7 +45,11 @@ public class CreatePullRequestExecution extends AbstractStepExecution<Integer, C
     @Override
     protected Integer run() throws Exception {
         try {
-            JSONObject result = getService(ContentService.class).createPullRequest(getStep().getProject(), getStep().getRepoSlug(), getStep().getPullRequest());
+            JSONObject result = getService(ContentService.class).createPullRequest(
+                    getStep().getGitlabUrl(), retrieveAuthToken(getStep().getAuthToken()),
+                    getStep().getProject(), getStep().getRepoSlug(), getStep().getPullRequest(),
+                    getStep().getTimeout(), getStep().isDebugMode(), getStep().isTrustAllCertificates()
+            );
             return result.getInt("iid");
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,7 +1,5 @@
 package com.aagproservices.jenkins.gitlabsteps.step;
 
-import com.aagproservices.jenkins.gitlabsteps.GitlabServer;
-import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.workflow.steps.Step;
 
 import java.io.Serializable;
@@ -13,44 +11,37 @@ import java.io.Serializable;
  */
 public abstract class AbstractStep extends Step implements Serializable {
 
-    private static final long serialVersionUID = -2394672691414818804L;
+    private static final long serialVersionUID = -2394623491414818804L;
 
-    private GitlabServer site;
-    protected String project;
-    protected String repoSlug;
+    protected static final int DEFAULT_TIMEOUT = 60;
+
+    private final String gitlabUrl;
+    private final String authToken;
+    protected final String project;
+    protected final String repoSlug;
+    private final int timeout;
+    private final boolean debugMode;
+    private final boolean trustAllCertificates;
 
     /**
-     * Constructor which extracts the information of the configured site (global Jenkins config) from it's descriptor
-     * and constructs an instance of {@link GitlabServer} which can be used by the steps.
+     * Constructor which extracts the information of the configured site (global Jenkins config) from it's descriptor.
      */
-    public AbstractStep(String project, String repoSlug) {
+    public AbstractStep(String gitlabUrl, String authToken, String project, String repoSlug, int timeout, boolean debugMode, boolean trustAllCertificates) {
+        this.gitlabUrl = gitlabUrl;
+        this.authToken = authToken;
         this.project = project;
         this.repoSlug = repoSlug;
-
-        Jenkins jenkins = Jenkins.getInstanceOrNull();
-        if (jenkins == null) {
-            throw new IllegalStateException("Jenkins instance is null!");
-        }
-        GitlabServer.GitlabServerDescriptor siteDescriptor = (GitlabServer.GitlabServerDescriptor)jenkins.getDescriptor(GitlabServer.class);
-
-        if (siteDescriptor != null) {
-            this.site = new GitlabServer(
-                    siteDescriptor.getUrl(),
-                    siteDescriptor.getAccessToken(),
-                    siteDescriptor.getTimeout(),
-                    siteDescriptor.getPoolSize(),
-                    siteDescriptor.isDebugMode()
-            );
-        }
+        this.timeout = timeout == 0 ? DEFAULT_TIMEOUT : timeout;
+        this.debugMode = debugMode;
+        this.trustAllCertificates = trustAllCertificates;
     }
 
-    /**
-     * Returns the configured {@link GitlabServer}.
-     *
-     * @return The configured {@link GitlabServer}.
-     */
-    public GitlabServer getSite() {
-        return site;
+    public String getGitlabUrl() {
+        return gitlabUrl;
+    }
+
+    public String getAuthToken() {
+        return authToken;
     }
 
     public String getProject() {
@@ -59,5 +50,17 @@ public abstract class AbstractStep extends Step implements Serializable {
 
     public String getRepoSlug() {
         return repoSlug;
+    }
+
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public boolean isDebugMode() {
+        return debugMode;
+    }
+
+    public boolean isTrustAllCertificates() {
+        return trustAllCertificates;
     }
 }

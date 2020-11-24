@@ -1,6 +1,5 @@
 package com.aagproservices.jenkins.gitlabsteps.step.execution;
 
-import com.aagproservices.jenkins.gitlabsteps.GitlabServer;
 import com.aagproservices.jenkins.gitlabsteps.service.ContentService;
 import com.aagproservices.jenkins.gitlabsteps.step.AbstractStepExecution;
 import com.aagproservices.jenkins.gitlabsteps.step.descriptor.CreateBranchStep;
@@ -21,10 +20,9 @@ public class CreateBranchExecution extends AbstractStepExecution<JSONObject, Cre
      *
      * @param createBranchStep The step that is going to be executed.
      * @param context        The step context.
-     * @param gitlabSite The configured site of gitlab.
      */
-    public CreateBranchExecution(final CreateBranchStep createBranchStep, final StepContext context, final GitlabServer gitlabSite) {
-        super(createBranchStep, context, gitlabSite);
+    public CreateBranchExecution(final CreateBranchStep createBranchStep, final StepContext context) {
+        super(createBranchStep, context);
     }
 
     @Override
@@ -43,7 +41,11 @@ public class CreateBranchExecution extends AbstractStepExecution<JSONObject, Cre
     @Override
     protected JSONObject run() throws Exception {
         try {
-            return getService(ContentService.class).createBranch(getStep().getProject(), getStep().getRepoSlug(), getStep().getBranch());
+            return getService(ContentService.class).createBranch(
+                    getStep().getGitlabUrl(), retrieveAuthToken(getStep().getAuthToken()),
+                    getStep().getProject(), getStep().getRepoSlug(), getStep().getBranch(),
+                    getStep().getTimeout(), getStep().isDebugMode(), getStep().isTrustAllCertificates()
+            );
         } catch (Exception e) {
             e.printStackTrace();
             throw e;

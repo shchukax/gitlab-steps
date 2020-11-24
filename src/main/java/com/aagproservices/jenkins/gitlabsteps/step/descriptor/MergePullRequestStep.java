@@ -32,14 +32,15 @@ public class MergePullRequestStep extends AbstractStep {
      *        ID of the pull request to merge
      */
     @DataBoundConstructor
-    public MergePullRequestStep(final String project, final String repoSlug, final int id) {
-        super(project, repoSlug);
+    public MergePullRequestStep(final String gitlabUrl, final String authToken, final String project, final String repoSlug, final int id,
+                                final int timeout, final boolean debugMode, final boolean trustAllCertificates) {
+        super(gitlabUrl, authToken, project, repoSlug, timeout, debugMode, trustAllCertificates);
         this.id = id;
     }
 
     @Override
     public StepExecution start(final StepContext context) throws Exception {
-        return new MergePullRequestExecution(this, context, getSite());
+        return new MergePullRequestExecution(this, context);
     }
 
     /**

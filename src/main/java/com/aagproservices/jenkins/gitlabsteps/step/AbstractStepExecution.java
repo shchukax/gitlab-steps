@@ -1,10 +1,14 @@
 package com.aagproservices.jenkins.gitlabsteps.step;
 
-import com.aagproservices.jenkins.gitlabsteps.GitlabServer;
 import com.aagproservices.jenkins.gitlabsteps.service.BaseService;
 import com.aagproservices.jenkins.gitlabsteps.service.ContentService;
+import com.cloudbees.plugins.credentials.CredentialsProvider;
+import hudson.model.Run;
+import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.SynchronousNonBlockingStepExecution;
+
+import java.util.Collections;
 
 /**
  * @param <R> The return type of the execution.
@@ -19,19 +23,14 @@ public abstract class AbstractStepExecution<R, T extends AbstractStep> extends S
 
     private final transient T step;
 
-    private final transient GitlabServer gitlabSite;
-
     /**
      * Constructor which takes the information to initialize the execution of the step.
      *
      * @param step           The step which gets executed.
      * @param context        The context of the step.
-     * @param gitlabSite The configured site of gitlab (global Jenkins config).
      */
-    public AbstractStepExecution(final T step, final StepContext context,
-                                 final GitlabServer gitlabSite) {
+    public AbstractStepExecution(final T step, final StepContext context) {
         super(context);
-        this.gitlabSite = gitlabSite;
         this.step = step;
         validate(step);
     }
@@ -58,7 +57,7 @@ public abstract class AbstractStepExecution<R, T extends AbstractStep> extends S
     protected <S extends BaseService> S getService(final Class<S> clazz) {
         switch (clazz.getSimpleName()) {
             case "ContentService":
-                return clazz.cast(new ContentService(gitlabSite));
+                return clazz.cast(new ContentService());
             default:
                 throw new IllegalArgumentException(String.format("\"%s\" is not a valid service", clazz.getSimpleName()));
         }
@@ -71,11 +70,17 @@ public abstract class AbstractStepExecution<R, T extends AbstractStep> extends S
      */
     protected void validate(T step) {
         if (isNull(step)) {
-            throw new IllegalStateException("Given step of type CreatePageStep is null");
+            throw new IllegalStateException("Given step is null");
         }
 
-        if (step.getSite() == null) {
-            throw new IllegalStateException("Given site is null");
+        if (step.getGitlabUrl() == null) {
+            throw new IllegalStateException("Gitlab URL is null");
+        }
+
+        if (step.getAuthToken() == null) {
+            throw new IllegalStateException("Credential is not specified");
+        } else if (retrieveAuthToken(step.getAuthToken()) == null) {
+            throw new IllegalStateException("Credential is not found or a wrong type");
         }
 
         String project = step.getProject();
@@ -97,5 +102,25 @@ public abstract class AbstractStepExecution<R, T extends AbstractStep> extends S
      */
     public T getStep() {
         return step;
+    }
+
+    protected String retrieveAuthToken(String authCred) {
+        try {
+            Run run = getContext().get(Run.class);
+            if (run == null) {
+                throw new RuntimeException("Unable to read config file - invalid run");
+            }
+
+            StringCredentials credential = CredentialsProvider.findCredentialById(
+                    authCred,
+                    StringCredentials.class,
+                    run,
+                    Collections.emptyList()
+            );
+
+            return credential == null ? null : credential.getSecret().getPlainText();
+        } catch (Exception ex) {
+            throw new RuntimeException("Unable to retrieve client certificate", ex);
+        }
     }
 }

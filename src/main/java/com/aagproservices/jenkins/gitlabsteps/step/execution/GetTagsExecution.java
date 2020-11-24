@@ -1,6 +1,5 @@
 package com.aagproservices.jenkins.gitlabsteps.step.execution;
 
-import com.aagproservices.jenkins.gitlabsteps.GitlabServer;
 import com.aagproservices.jenkins.gitlabsteps.service.ContentService;
 import com.aagproservices.jenkins.gitlabsteps.step.AbstractStepExecution;
 import com.aagproservices.jenkins.gitlabsteps.step.descriptor.GetTagsStep;
@@ -21,10 +20,9 @@ public class GetTagsExecution extends AbstractStepExecution<JSONArray, GetTagsSt
      *
      * @param getTagsStep   The step that is going to be executed.
      * @param context       The step context.
-     * @param gitlabSite The configured site of gitlab.
      */
-    public GetTagsExecution(final GetTagsStep getTagsStep, final StepContext context, final GitlabServer gitlabSite) {
-        super(getTagsStep, context, gitlabSite);
+    public GetTagsExecution(final GetTagsStep getTagsStep, final StepContext context) {
+        super(getTagsStep, context);
     }
 
     @Override
@@ -35,7 +33,11 @@ public class GetTagsExecution extends AbstractStepExecution<JSONArray, GetTagsSt
     @Override
     protected JSONArray run() throws Exception {
         try {
-            return getService(ContentService.class).getTags(getStep().getProject(), getStep().getRepoSlug(), getStep().getFilter());
+            return getService(ContentService.class).getTags(
+                    getStep().getGitlabUrl(), retrieveAuthToken(getStep().getAuthToken()),
+                    getStep().getProject(), getStep().getRepoSlug(), getStep().getFilter(),
+                    getStep().getTimeout(), getStep().isDebugMode(), getStep().isTrustAllCertificates()
+            );
         } catch (Exception e) {
             e.printStackTrace();
             throw e;

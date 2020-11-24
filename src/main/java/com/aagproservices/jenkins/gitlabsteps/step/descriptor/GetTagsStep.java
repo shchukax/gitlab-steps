@@ -31,14 +31,15 @@ public class GetTagsStep extends AbstractStep {
      *        Substring to match tags to
      */
     @DataBoundConstructor
-    public GetTagsStep(final String project, final String repoSlug, String filter) {
-        super(project, repoSlug);
+    public GetTagsStep(final String gitlabUrl, final String authToken, final String project, final String repoSlug, String filter,
+                       final int timeout, final boolean debugMode, final boolean trustAllCertificates) {
+        super(gitlabUrl, authToken, project, repoSlug, timeout, debugMode, trustAllCertificates);
         this.filter = filter;
     }
 
     @Override
     public StepExecution start(final StepContext context) throws Exception {
-        return new GetTagsExecution(this, context, getSite());
+        return new GetTagsExecution(this, context);
     }
 
     public String getFilter() {
