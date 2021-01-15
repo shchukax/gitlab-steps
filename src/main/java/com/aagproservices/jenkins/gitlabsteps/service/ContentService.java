@@ -9,6 +9,7 @@ import okhttp3.RequestBody;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.HttpMethod;
@@ -69,6 +70,17 @@ public final class ContentService extends BaseService {
         } catch (JSONException ex) {
             throw new RuntimeException("Error creating branch", ex);
         }
+    }
+
+    public JSONArray listBranches(String gitlabUrl, final String authToken, final String project, final String repoSlug, final String search,
+                                   int timeout, final boolean debugMode, final boolean trustAllCertificates) throws BadRequestException {
+        Map<String, String> params = null;
+        if (StringUtils.isNotBlank(search)) {
+            params = new HashMap<>(1);
+            params.put("search", search);
+        }
+        Request request = buildRequest(gitlabUrl, authToken, project, repoSlug,"repository/branches", HttpMethod.GET, null, params);
+        return (JSONArray)executeRequest(request, timeout, debugMode, trustAllCertificates);
     }
 
     public JSONObject createPullRequest(String gitlabUrl, final String authToken, final String project, final String repoSlug, final PullRequest pullRequest,
