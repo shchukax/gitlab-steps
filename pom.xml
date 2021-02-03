@@ -78,7 +78,7 @@
         <workflow.step.api.version>2.12</workflow.step.api.version>
         <jenkins-test-harness.version>2.23</jenkins-test-harness.version>
         <scm.api.version>2.2.0</scm.api.version>
-        <ant.version>1.10.8</ant.version>
+        <ant.version>1.10.9</ant.version>
         <plexus.utils.version>3.0.24</plexus.utils.version>
         <plexus.classworlds.version>2.5.2</plexus.classworlds.version>
     </properties>
